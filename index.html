@@ -1,536 +1,455 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Guide to FastAPI API Development</title>
-    <!-- Chosen Palette: Developer Calm -->
-    <!-- Application Structure Plan: The SPA deconstructs the dense technical report into a non-linear, interactive learning experience. The structure is modular, beginning with fundamentals and then moving to a central "Pillars of a Robust API" dashboard. This dashboard uses tabs for key topics (Validation, Rate Limiting, Error Handling, Logging/Monitoring), allowing developers to explore complex concepts in any order. This user-centric design replaces a linear document flow with an engaging, explorable interface, which is better suited for knowledge retention and practical application of technical concepts. The goal is to turn passive reading into active learning. -->
-    <!-- Visualization & Content Choices: 
-        - Report Info: REST Architectural Constraints -> Goal: Inform -> Viz/Presentation: Interactive HTML cards -> Interaction: Click-to-reveal details -> Justification: Breaks down the six principles into digestible, self-contained units, more engaging than a list -> Library/Method: Vanilla JS + Tailwind.
-        - Report Info: HTTP Methods & CRUD -> Goal: Inform/Reference -> Viz/Presentation: Interactive method selector -> Interaction: Click button to update display with corresponding info -> Justification: Creates a simple tool for reinforcing the core relationship between HTTP verbs and actions -> Library/Method: Vanilla JS + Tailwind.
-        - Report Info: Rate Limiting Algorithms -> Goal: Compare -> Viz/Presentation: Bar Chart -> Interaction: Hover for tooltips with details -> Justification: Provides a clear visual comparison of the algorithms' trade-offs (simplicity vs. burst prevention), which is more effective than a text description -> Library/Method: Chart.js.
-        - Report Info: Pydantic Validation -> Goal: Engage/Demonstrate -> Viz/Presentation: "Validator Sandbox" with a form and code display -> Interaction: User input triggers simulated validation and displays success or a 422 error -> Justification: Transforms a static concept into a hands-on, memorable experience -> Library/Method: Vanilla JS.
-        - Report Info: HTTP Status Codes -> Goal: Organize/Reference -> Viz/Presentation: Searchable/Filterable Grid -> Interaction: Text input filters the grid -> Justification: An efficient, practical tool for developers to quickly look up status codes, far superior to a static table -> Library/Method: Vanilla JS + Tailwind.
-        - Report Info: Logging Levels -> Goal: Compare -> Viz/Presentation: Bar Chart -> Interaction: Hover for tooltips -> Justification: Visually represents the verbosity and use case of each log level for quick comparison -> Library/Method: Chart.js.
-        - Report Info: Monitoring Stack -> Goal: Inform -> Viz/Presentation: Interactive Diagram -> Interaction: Click on component to see its description -> Justification: Simplifies the complex relationship between monitoring tools into an easy-to-understand visual flow -> Library/Method: Vanilla JS + Tailwind.
-    -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Building Robust & Observable APIs with Python & FastAPI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            color: #333;
         }
-        .chart-container {
-            position: relative;
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        header {
+            background-color: #2c3e50;
+            color: #fff;
+            padding: 40px 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2.8em;
+            letter-spacing: 1px;
+        }
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 30px;
+            font-size: 1.8em;
+        }
+        h3 {
+            color: #34495e;
+            margin-top: 25px;
+            font-size: 1.4em;
+        }
+        .section-intro {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            color: #555;
+        }
+        ul {
+            list-style-type: disc;
+            margin-left: 20px;
+            padding-left: 0;
+        }
+        ul li {
+            margin-bottom: 8px;
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .card {
+            background-color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+        .card h4 {
+            color: #2c3e50;
+            margin-top: 0;
+            font-size: 1.1em;
+        }
+        .card p {
+            font-size: 0.95em;
+            color: #555;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            color: #777;
+            font-size: 0.9em;
+            border-top: 1px solid #eee;
+        }
+        .code-snippet {
+            background-color: #eee;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .code-snippet code {
+            display: block;
+        }
+        table {
             width: 100%;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 300px;
-            max-height: 40vh;
+            border-collapse: collapse;
+            margin-top: 20px;
+            margin-bottom: 20px;
         }
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 350px;
-            }
+        table, th, td {
+            border: 1px solid #ddd;
         }
-        .tab-active {
-            border-color: #0284c7;
-            color: #0284c7;
-            background-color: #f0f9ff;
+        th, td {
+            padding: 12px;
+            text-align: left;
         }
-        .tab-inactive {
-            border-color: transparent;
-            color: #475569;
+        th {
+            background-color: #3498db;
+            color: white;
         }
-        .content-section {
-            scroll-margin-top: 80px;
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .highlight {
+            color: #3498db;
+            font-weight: bold;
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800">
-
-    <header class="bg-white/80 backdrop-blur-lg shadow-sm sticky top-0 z-50">
-        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-20">
-                <h1 class="text-xl font-bold text-sky-700">Interactive Guide to FastAPI</h1>
-                <div class="hidden sm:flex items-center space-x-8">
-                    <a href="#fundamentals" class="text-slate-600 hover:text-sky-600 transition-colors">Fundamentals</a>
-                    <a href="#pillars" class="text-slate-600 hover:text-sky-600 transition-colors">The Pillars</a>
-                    <a href="#recommendations" class="text-slate-600 hover:text-sky-600 transition-colors">Recommendations</a>
-                </div>
-            </div>
-        </nav>
+<body>
+    <header>
+        <h1>Building Robust & Observable APIs with Python and FastAPI 🐍</h1>
+        <p>A comprehensive guide to developing high-performance, secure, and maintainable APIs.</p>
     </header>
 
-    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="container">
+        <section>
+            <h2>🚀 Introduction to APIs and FastAPI</h2>
+            <p class="section-intro">APIs (Application Programming Interfaces) are the digital connective tissue of modern software. FastAPI, a modern Python web framework, empowers developers to build high-performance APIs efficiently, leveraging Python's type hints and Pydantic for robust data handling.</p>
 
-        <section class="text-center mb-20">
-            <h2 class="text-4xl md:text-5xl font-bold text-slate-900 mb-4">Build Robust & Observable APIs</h2>
-            <p class="max-w-3xl mx-auto text-lg text-slate-600">An interactive guide based on the "Building Robust and Observable APIs with Python and FastAPI" report. Move beyond static documentation and explore the core concepts through interactive examples and visualizations.</p>
+            <h3>What is an API?</h3>
+            <ul>
+                <li>A <span class="highlight">software intermediary</span> facilitating communication and data exchange.</li>
+                <li>Acts as a <span class="highlight">"bridge" or "contract"</span> that defines how software components interact.</li>
+                <li>Simplifies development by exposing abstract interfaces and concealing implementation details.</li>
+                <li>Typical flow: Client sends request (e.g., HTTP), server processes, sends response (data, error, status).</li>
+            </ul>
+            ---
+            <h3>Why FastAPI?</h3>
+            <ul>
+                <li><span class="highlight">Exceptional Speed:</span> Comparable to NodeJS and Go, ideal for high-performance production environments.</li>
+                <li><span class="highlight">Enhanced Developer Experience:</span> Accelerates feature development (200-300%) and reduces errors (~40%).</li>
+                <li><span class="highlight">Automatic Interactive Docs:</span> Generates OpenAPI (Swagger UI) and JSON Schema docs.</li>
+                <li><span class="highlight">Asynchronous Support:</span> Built-in with Python's asyncio for concurrent operations.</li>
+                <li><span class="highlight">Dependency Injection:</span> Powerful system for modular and testable code.</li>
+                <li><span class="highlight">Pydantic Integration:</span> Defines data models using Python type hints, ensuring consistent schema, validation, and documentation.</li>
+            </ul>
+            ---
+            <h3>Setting Up a Basic FastAPI Application</h3>
+            <p>Install FastAPI and its dependencies:</p>
+            <div class="code-snippet"><code>pip install "fastapi[standard]"</code></div>
+            <p>Create a minimal "Hello World" app (main.py):</p>
+            <div class="code-snippet">
+                <pre><code>from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}</code></pre>
+            </div>
+            <p>Run the application:</p>
+            <div class="code-snippet"><code>uvicorn main:app --reload</code></div>
         </section>
 
-        <section id="fundamentals" class="mb-20 content-section">
-            <div class="text-center mb-12">
-                <h3 class="text-3xl font-bold text-sky-700">API Fundamentals</h3>
-                <p class="mt-2 text-slate-600 max-w-2xl mx-auto">Start with the foundational principles of API design. This section covers the core architectural constraints of REST and how HTTP methods are used to manipulate resources.</p>
-            </div>
-            
-            <div class="bg-white p-8 rounded-xl shadow-md mb-12">
-                <h4 class="text-2xl font-semibold mb-2 text-center">The 6 Architectural Constraints of REST</h4>
-                <p class="text-center text-slate-500 mb-8">Click on each constraint to learn more.</p>
-                <div id="rest-constraints-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                </div>
-            </div>
+        <section>
+            <h2>🏛️ Core Principles of RESTful API Design</h2>
+            <p class="section-intro">REST (Representational State Transfer) is an architectural style for building scalable, flexible, and efficient web services, leveraging the strengths of the HTTP protocol.</p>
 
-            <div class="bg-white p-8 rounded-xl shadow-md">
-                 <h4 class="text-2xl font-semibold mb-2 text-center">HTTP Methods & Resource Manipulation</h4>
-                 <p class="text-center text-slate-500 mb-8">Select an HTTP method to see its role in a RESTful API.</p>
-                <div class="flex flex-wrap justify-center gap-3 mb-8" id="http-methods-controls">
+            <h3>The Six Architectural Constraints of REST</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <h4>Uniform Interface</h4>
+                    <p>Consistent API requests for the same resource, irrespective of origin. Resources identified by URIs.</p>
                 </div>
-                <div id="http-method-display" class="bg-slate-50 p-6 rounded-lg ring-1 ring-slate-200 transition-all duration-300">
+                <div class="card">
+                    <h4>Client-Server Decoupling</h4>
+                    <p>Client and server operate independently, enhancing portability and scalability.</p>
                 </div>
+                <div class="card">
+                    <h4>Statelessness</h4>
+                    <p>Each request contains all necessary info; server stores no session data from previous requests. Simplifies server design, improves reliability.</p>
+                </div>
+                <div class="card">
+                    <h4>Cacheability</h4>
+                    <p>Responses indicate if resources are cacheable, reducing server load and improving performance.</p>
+                </div>
+                <div class="card">
+                    <h4>Layered System Architecture</h4>
+                    <p>Multiple layers (security, load balancers, proxies) can exist between client and server, unknown to them.</p>
+                </div>
+                <div class="card">
+                    <h4>Code on Demand (Optional)</h4>
+                    <p>Responses can optionally include executable code for dynamic client functionality.</p>
+                </div>
+            </div>
+            ---
+            <h3>Resource Identification and Manipulation (URIs, HTTP Methods)</h3>
+            <p>RESTful APIs are resource-oriented. Resources are identified by <span class="highlight">URIs</span> and manipulated using standard <span class="highlight">HTTP methods</span> (CRUD operations).</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>HTTP Method</th>
+                        <th>Description</th>
+                        <th>CRUD Operation</th>
+                        <th>Example URI (Nouns)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>GET</td>
+                        <td>Retrieves a representation of a resource.</td>
+                        <td>Read</td>
+                        <td><code>/articles/</code>, <code>/articles/{id}</code></td>
+                    </tr>
+                    <tr>
+                        <td>POST</td>
+                        <td>Submits new data to create a resource.</td>
+                        <td>Create</td>
+                        <td><code>/articles/</code></td>
+                    </tr>
+                    <tr>
+                    <td>PUT</td>
+                    <td>Updates an existing resource with new data.</td>
+                    <td>Update</td>
+                    <td><code>/articles/{id}</code></td>
+                    </tr>
+                    <tr>
+                    <td>DELETE</td>
+                    <td>Removes a specified resource.</td>
+                    <td>Delete</td>
+                    <td><code>/articles/{id}</code></td>
+                    </tr>
+                </tbody>
+            </table>
+            ---
+            <h3>Best Practices for RESTful Endpoint Design</h3>
+            <ul>
+                <li>Use <span class="highlight">Nouns for Endpoints</span> (plural), <span class="highlight">Verbs for Methods</span> (e.g., GET /articles/, POST /articles/).</li>
+                <li>Implement <span class="highlight">Logical Nesting</span> for hierarchical resources (e.g., /articles/:articleId/comments/).</li>
+                <li>Accept and Respond with <span class="highlight">JSON</span>.</li>
+                <li>Leverage <span class="highlight">HTTP Headers</span> (metadata, authorization) and <span class="highlight">Status Codes</span> (200 OK, 404 Not Found, 422 Unprocessable Entity, etc.).</li>
+                <li>Allow <span class="highlight">Filtering, Sorting, and Pagination</span> via query parameters.</li>
+                <li><span class="highlight">Cache Data</span> where appropriate.</li>
+                <li>Implement <span class="highlight">Versioning APIs</span> (e.g., /v1/, /v2/) for backward compatibility.</li>
+                <li>Maintain Good <span class="highlight">Security Practices</span> (authentication, authorization, input validation).</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>🛡️ Building Robust FastAPI Applications: Essential Components</h2>
+            <p class="section-intro">Key components for building secure, stable, and maintainable FastAPI APIs include input validation, rate limiting, comprehensive error handling, and effective logging.</p>
+
+            <h3>Input Validation and Data Serialization with Pydantic</h3>
+            <ul>
+                <li><span class="highlight">Pydantic BaseModel:</span> Defines data schemas using Python type annotations for request and response bodies.</li>
+                <li><span class="highlight">Automatic Validation:</span> FastAPI automatically validates incoming JSON against Pydantic models, returning 422 Unprocessable Entity on failure.</li>
+                <li><span class="highlight">Automatic Parsing & Conversion:</span> Converts data from various sources (body, path, query) to Python objects.</li>
+                <li><span class="highlight">Custom Validation Rules:</span> Use Pydantic's field types (e.g., <code>constr</code>, <code>EmailStr</code>) for fine-grained control.</li>
+                <li><span class="highlight">Security Benefit:</span> Strict validation prevents many injection attacks by rejecting malformed data.</li>
+            </ul>
+            <p>Example Pydantic Model:</p>
+            <div class="code-snippet">
+                <pre><code>from pydantic import BaseModel
+
+class Item(BaseModel):
+    name: str
+    description: str | None = None
+    price: float
+    tax: float | None = None</code></pre>
+            </div>
+            ---
+            <h3>Implementing API Rate Limiting with SlowAPI</h3>
+            <ul>
+                <li><span class="highlight">Importance:</span> Prevents API abuse (brute-force, DDoS), ensures fair resource distribution, manages traffic spikes.</li>
+                <li><span class="highlight">Distinction:</span> Rate Limiting (strict limits, rejects excess) vs. Throttling (slows down/queues excess).</li>
+                <li><span class="highlight">Algorithms:</span> Fixed Window, Sliding Window, Leaky Bucket.</li>
+                <li><span class="highlight">FastAPI Integration (SlowAPI):</span>
+                    <ul>
+                        <li><span class="highlight">Global Limits:</span> Apply across all endpoints.</li>
+                        <li><span class="highlight">Endpoint-Specific Limits:</span> Use <code>@limiter.limit()</code> decorator.</li>
+                        <li><span class="highlight">Custom Keys:</span> Base limits on IP, user ID, API key.</li>
+                    </ul>
+                </li>
+                <li><span class="highlight">Communication:</span> Respond with <span class="highlight">HTTP 429 "Too Many Requests"</span> and <span class="highlight">Retry-After header</span>.</li>
+            </ul>
+            <p>SlowAPI Global Rate Limit Example:</p>
+            <div class="code-snippet">
+                <pre><code>from fastapi import FastAPI, Request
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
+limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
+app = FastAPI(middleware=[Middleware(SlowAPIMiddleware, limiter=limiter)])
+app.state.limiter = limiter # Essential for middleware access
+
+@app.get("/")
+async def root():
+    return {"message": "Hello, globally limited world!"}</code></pre>
+            </div>
+            ---
+            <h3>Comprehensive Error Handling Strategies</h3>
+            <ul>
+                <li><span class="highlight">Categorization:</span>
+                    <ul>
+                        <li><span class="highlight">Operational Errors:</span> External factors (e.g., 404 Not Found, 422 Validation Failure).</li>
+                        <li><span class="highlight">Programmer Errors:</span> Code flaws (e.g., NameError, unhandled exceptions), requiring code correction.</li>
+                    </ul>
+                </li>
+                <li><span class="highlight">FastAPI's HTTPException:</span> Primary mechanism for 4xx client-side errors. Automatically converts to JSON response.</li>
+                <li><span class="highlight">Custom Exception Handlers:</span> Define global handlers for consistent error responses, overriding defaults or handling custom exceptions.</li>
+                <li><span class="highlight">HTTP Status Codes:</span> Crucial for clear API communication (see table below).</li>
+            </ul>
+            <p>Essential HTTP Status Codes for API Responses:</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Status Code</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Common API Use Case</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>200 OK</td><td>Success</td><td>Standard successful request.</td><td>GET request successful; data returned.</td></tr>
+                    <tr><td>201 Created</td><td>Success</td><td>New resource created.</td><td>POST request successfully created a new resource.</td></tr>
+                    <tr><td>204 No Content</td><td>Success</td><td>Request processed, no content returned.</td><td>DELETE request successful; no content to return.</td></tr>
+                    <tr><td>400 Bad Request</td><td>Client Error</td><td>Server cannot process request due to client error.</td><td>Malformed request body, missing parameters.</td></tr>
+                    <tr><td>401 Unauthorized</td><td>Client Error</td><td>Lacks valid authentication credentials.</td><td>Missing or invalid authentication token.</td></tr>
+                    <tr><td>403 Forbidden</td><td>Client Error</td><td>Authenticated, but lacks permissions.</td><td>User lacks necessary permissions for action.</td></tr>
+                    <tr><td>404 Not Found</td><td>Client Error</td><td>Resource does not exist.</td><td>Resource identified by URI does not exist.</td></tr>
+                    <tr><td>422 Unprocessable Entity</td><td>Client Error</td><td>Semantic validation failure.</td><td>Pydantic validation error (data types correct, values invalid).</td></tr>
+                    <tr><td>429 Too Many Requests</td><td>Client Error</td><td>Rate limit exceeded.</td><td>Client sent too many requests in a given time.</td></tr>
+                    <tr><td>500 Internal Server Error</td><td>Server Error</td><td>Generic unexpected server error.</td><td>Unhandled exceptions, database errors.</td></tr>
+                </tbody>
+            </table>
+            ---
+            <h3>Effective Logging Practices</h3>
+            <ul>
+                <li><span class="highlight">Role of Logging:</span> Understand API activity, identify problems, troubleshoot, audit, monitor health.</li>
+                <li><span class="highlight">Python's built-in <code>logging</code> module:</span> Seamlessly integrates with FastAPI.
+                    <ul>
+                        <li><span class="highlight">Log Levels:</span> CRITICAL, ERROR, WARNING, INFO, DEBUG (use DEBUG for dev, INFO/higher for prod).</li>
+                        <li><span class="highlight">Configuration:</span> Use <code>basicConfig()</code> for simple, <code>dictConfig()</code> for advanced setups (unify FastAPI and Uvicorn logs).</li>
+                    </ul>
+                </li>
+                <li><span class="highlight">Structured Logging:</span> Emit log data in machine-readable format (JSON) with key-value pairs. Enhances analysis, tracing (correlation IDs). Libraries like <code>fastapi-structlog</code>.</li>
+                <li><span class="highlight">Log Rotation & Archiving:</span> Prevent large files using <code>RotatingFileHandler</code> or <code>TimedRotatingFileHandler</code>. Archive old logs.</li>
+                <li><span class="highlight">Avoiding Sensitive Information:</span> Redact or filter PII from logs.</li>
+            </ul>
+            <p>Structured Logging Example (conceptual):</p>
+            <div class="code-snippet">
+                <pre><code>import structlog
+from fastapi import FastAPI
+# ... middleware imports for structured logging
+
+init_logger(json_logs=True, log_level="INFO")
+log = structlog.get_logger()
+
+app = FastAPI(...)
+
+@app.get("/structured-data")
+async def structured_data():
+    log.info("Processing request", user_id="user123", action="retrieve_data")
+    return {"message": "Data processed"}</code></pre>
+            </div>
+            ---
+            <h3>API Monitoring and Observability</h3>
+            <ul>
+                <li><span class="highlight">Why Monitor:</span> Proactively identify bottlenecks, ensure uptime, understand user experience, facilitate troubleshooting, inform scaling.</li>
+                <li><span class="highlight">Common Metrics:</span>
+                    <ul>
+                        <li><span class="highlight">Counters:</span> Cumulative counts (e.g., total requests).</li>
+                        <li><span class="highlight">Gauges:</span> Current values (e.g., CPU usage).</li>
+                        <li><span class="highlight">Histograms:</span> Distribution of values (e.g., request durations, percentiles).</li>
+                    </ul>
+                </li>
+                <li><span class="highlight">Tools & Integrations:</span>
+                    <ul>
+                        <li><span class="highlight">OpenTelemetry:</span> Standard for collecting telemetry data (logs, traces, metrics).</li>
+                        <li><span class="highlight">Prometheus:</span> Open-source monitoring system for collecting metrics (e.g., with <code>prometheus_fastapi_instrumentator</code>).</li>
+                        <li><span class="highlight">Grafana:</span> Data visualization for Prometheus metrics.</li>
+                        <li><span class="highlight">Sentry:</span> Error tracking and performance monitoring with stack traces, request data, and performance tracing.</li>
+                    </ul>
+                </li>
+            </ul>
+            <p>Prometheus FastAPI Instrumentation Example:</p>
+            <div class="code-snippet">
+                <pre><code>from fastapi import FastAPI
+from prometheus_fastapi_instrumentator import Instrumentator
+
+app = FastAPI()
+Instrumentator().instrument(app).expose(app) # Metrics at /metrics
+
+@app.get("/")
+async def read_root():
+    return {"message": "Hello World"}</code></pre>
+            </div>
+            <p>Sentry Integration Example:</p>
+            <div class="code-snippet">
+                <pre><code>import sentry_sdk
+from fastapi import FastAPI
+
+sentry_sdk.init(
+    dsn="YOUR_SENTRY_DSN_HERE",
+    traces_sample_rate=1.0,
+    send_default_pii=True
+)
+
+app = FastAPI()
+
+@app.get("/sentry-debug")
+async def sentry_debug():
+    1 / 0 # This will trigger a Sentry error
+    return {"message": "This should not be reached"}</code></pre>
             </div>
         </section>
-        
-        <section id="pillars" class="content-section mb-20">
-            <div class="text-center mb-12">
-                <h3 class="text-3xl font-bold text-sky-700">The Pillars of a Robust API</h3>
-                <p class="mt-2 text-slate-600 max-w-2xl mx-auto">A production-ready API is built on several key pillars. Use the tabs below to explore interactive labs on input validation, rate limiting, error handling, and observability.</p>
-            </div>
 
-            <div class="bg-white rounded-xl shadow-md">
-                <div class="border-b border-slate-200">
-                    <nav id="pillars-tabs" class="-mb-px flex space-x-1 sm:space-x-4 px-4 sm:px-8" aria-label="Tabs">
-                    </nav>
-                </div>
-                <div id="pillars-content" class="p-4 sm:p-8">
-                </div>
-            </div>
+        <section>
+            <h2>📝 Conclusion & Recommendations</h2>
+            <p class="section-intro">Building robust, secure, and observable APIs with FastAPI involves a holistic approach, from foundational API design to advanced monitoring strategies. FastAPI's features streamline this process.</p>
+            <h3>Key Recommendations:</h3>
+            <ul>
+                <li><span class="highlight">Embrace Pydantic as the API Contract:</span> Use BaseModel for all request/response bodies for validation, serialization, and documentation.</li>
+                <li><span class="highlight">Design RESTful Endpoints Thoughtfully:</span> Use nouns for paths, HTTP methods for actions; implement nesting, filtering, sorting, pagination.</li>
+                <li><span class="highlight">Implement Multi-layered Rate Limiting:</span> Utilize SlowAPI for global and endpoint-specific limits, and always return HTTP 429 with Retry-After.</li>
+                <li><span class="highlight">Adopt a Centralized Error Handling Strategy:</span> Use HTTPException for 4xx errors and global handlers for custom exceptions.</li>
+                <li><span class="highlight">Prioritize Structured and Contextual Logging:</span> Unify logs, use structured formats (JSON) with correlation IDs for better analysis.</li>
+                <li><span class="highlight">Integrate Comprehensive Monitoring and Observability Tools:</span> Set up Prometheus/Grafana for metrics and Sentry for error/performance tracing.</li>
+                <li><span class="highlight">Maintain Security as a Core Principle:</span> Continuous attention to secure coding practices.</li>
+            </ul>
         </section>
+    </div>
 
-        <section id="recommendations" class="content-section">
-             <div class="text-center mb-12">
-                <h3 class="text-3xl font-bold text-sky-700">Key Recommendations</h3>
-                <p class="mt-2 text-slate-600 max-w-2xl mx-auto">A summary of best practices for building high-quality FastAPI applications, distilled from the report.</p>
-            </div>
-            <div id="recommendations-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            </div>
-        </section>
-
-    </main>
-
-    <footer class="bg-slate-800 text-slate-400 mt-20 py-8">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p>Interactive Application created from the "FastAPI API Development Comprehensive Guide".</p>
-            <p class="text-sm mt-2">Designed to make learning engaging and effective.</p>
-        </div>
+    <footer>
+        <p>&copy; 2025 API Development Insights. All rights reserved.</p>
     </footer>
-
-
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-
-        const data = {
-            restConstraints: [
-                { id: 'uniform-interface', title: 'Uniform Interface', icon: '🔗', description: 'All API requests for the same resource should be consistent. Resources are identified by URIs, and the representation contains enough info to modify or delete the resource.' },
-                { id: 'client-server', title: 'Client-Server Decoupling', icon: '🔌', description: 'Client and server applications must be entirely independent. The client only needs the URI, and the server only sends data via HTTP without modifying the client.' },
-                { id: 'stateless', title: 'Statelessness', icon: '💨', description: 'Each request from a client must contain all necessary information. The server stores no session data from previous requests, simplifying design and improving scalability.' },
-                { id: 'cacheable', title: 'Cacheability', icon: '💾', description: 'Responses should indicate if they are cacheable. Caching frequently accessed data reduces server load and improves client-side performance.' },
-                { id: 'layered-system', title: 'Layered System', icon: '🧱', description: 'A RESTful system can have multiple layers (proxies, load balancers). Clients and servers should be unaware of these intermediaries, enhancing scalability and security.' },
-                { id: 'code-on-demand', title: 'Code on Demand (Optional)', icon: '⚙️', description: 'Responses can optionally include executable code (e.g., scripts) to extend client functionality on demand. This is the only optional constraint.' }
-            ],
-            httpMethods: [
-                { method: 'GET', crud: 'Read', description: 'Retrieves a representation of one or more resources. It is a safe and idempotent method, meaning it does not change the server state.', example: '`/articles/` or `/articles/{id}`' },
-                { method: 'POST', crud: 'Create', description: 'Submits new data to the server to create a new resource. It is not safe or idempotent, as multiple requests will create multiple new resources.', example: '`/articles/`' },
-                { method: 'PUT', crud: 'Update', description: 'Updates an existing resource entirely with new data. If the resource does not exist, it may create it. It is idempotent.', example: '`/articles/{id}`' },
-                { method: 'DELETE', crud: 'Delete', description: 'Removes a specified resource from the server. It is idempotent; deleting the same resource multiple times has the same effect.', example: '`/articles/{id}`' }
-            ],
-            pillars: [
-                { id: 'validation', title: 'Input Validation', icon: '🛡️' },
-                { id: 'rate-limiting', title: 'Rate Limiting', icon: '⏱️' },
-                { id: 'error-handling', title: 'Error Handling', icon: '⚠️' },
-                { id: 'logging-monitoring', title: 'Logging & Monitoring', icon: '📊' },
-            ],
-            statusCodes: [
-                { code: '200', category: 'Success', name: 'OK', desc: 'Standard response for successful HTTP requests.' },
-                { code: '201', category: 'Success', name: 'Created', desc: 'The request has been fulfilled and resulted in a new resource being created.' },
-                { code: '204', category: 'Success', name: 'No Content', desc: 'The server successfully processed the request, but is not returning any content.' },
-                { code: '400', category: 'Client Error', name: 'Bad Request', desc: 'The server cannot process the request due to a client error (e.g., malformed request syntax).' },
-                { code: '401', category: 'Client Error', name: 'Unauthorized', desc: 'The request lacks valid authentication credentials for the target resource.' },
-                { code: '403', category: 'Client Error', name: 'Forbidden', desc: 'The server understood the request but refuses to authorize it.' },
-                { code: '404', category: 'Client Error', name: 'Not Found', desc: 'The server cannot find the requested resource.' },
-                { code: '409', category: 'Client Error', name: 'Conflict', desc: 'The request could not be completed due to a conflict with the current state of the resource.' },
-                { code: '422', category: 'Client Error', name: 'Unprocessable Entity', desc: 'The server understands the request, but it was unable to process the contained instructions (e.g., semantic validation failure).' },
-                { code: '429', category: 'Client Error', name: 'Too Many Requests', desc: 'The user has sent too many requests in a given amount of time (rate limit exceeded).' },
-                { code: '500', category: 'Server Error', name: 'Internal Server Error', desc: 'A generic error message for an unexpected server condition.' },
-                { code: '503', category: 'Server Error', name: 'Service Unavailable', desc: 'The server is not ready to handle the request (e.g., maintenance or overload).' }
-            ],
-            recommendations: [
-                { icon: '📝', title: 'Pydantic as the Contract', description: 'Use Pydantic `BaseModel` for all request/response bodies to ensure automatic validation, serialization, and documentation.'},
-                { icon: '🗺️', title: 'Thoughtful REST Endpoints', description: 'Consistently use nouns for resource paths and HTTP methods for actions. Implement filtering, sorting, and pagination.'},
-                { icon: '🚦', title: 'Multi-layered Rate Limiting', description: 'Apply both global and endpoint-specific rate limits. Always return HTTP 429 with a `Retry-After` header.'},
-                { icon: '🚨', title: 'Centralized Error Handling', description: 'Use `HTTPException` for client errors and global handlers for custom errors to ensure consistent, secure responses.'},
-                { icon: '📜', title: 'Structured & Contextual Logging', description: 'Implement structured (JSON) logging with correlation IDs to enable effective tracing in distributed systems.'},
-                { icon: '📈', title: 'Comprehensive Observability', description: 'Integrate tools for metrics (Prometheus/Grafana) and tracing (Sentry) to proactively manage API health and performance.'}
-            ]
-        };
-
-        const renderRestConstraints = () => {
-            const grid = document.getElementById('rest-constraints-grid');
-            grid.innerHTML = data.restConstraints.map(c => `
-                <div id="${c.id}" class="bg-slate-50 rounded-lg p-6 cursor-pointer ring-1 ring-slate-200 hover:ring-sky-500 hover:shadow-lg transition-all" data-id="${c.id}">
-                    <div class="flex items-center space-x-4">
-                        <span class="text-3xl">${c.icon}</span>
-                        <h5 class="text-lg font-semibold text-slate-800">${c.title}</h5>
-                    </div>
-                    <p class="text-slate-600 mt-3 text-sm hidden">${c.description}</p>
-                </div>
-            `).join('');
-
-            grid.addEventListener('click', e => {
-                const card = e.target.closest('div[data-id]');
-                if (card) {
-                    const desc = card.querySelector('p');
-                    const wasHidden = desc.classList.contains('hidden');
-                    
-                    grid.querySelectorAll('p').forEach(p => p.classList.add('hidden'));
-                    grid.querySelectorAll('div[data-id]').forEach(c => c.classList.remove('bg-sky-50', 'ring-sky-500'));
-                    
-                    if (wasHidden) {
-                        desc.classList.remove('hidden');
-                        card.classList.add('bg-sky-50', 'ring-sky-500');
-                    }
-                }
-            });
-        };
-
-        const renderHttpMethods = () => {
-            const controls = document.getElementById('http-methods-controls');
-            const display = document.getElementById('http-method-display');
-            
-            controls.innerHTML = data.httpMethods.map(m => `
-                <button data-method="${m.method}" class="http-method-btn px-4 py-2 text-sm font-semibold rounded-md transition-colors bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-100">
-                    ${m.method}
-                </button>
-            `).join('');
-
-            const updateDisplay = (method) => {
-                const methodData = data.httpMethods.find(m => m.method === method);
-                controls.querySelectorAll('button').forEach(btn => {
-                    btn.classList.toggle('bg-sky-600', btn.dataset.method === method);
-                    btn.classList.toggle('text-white', btn.dataset.method === method);
-                     btn.classList.toggle('bg-white', btn.dataset.method !== method);
-                    btn.classList.toggle('text-slate-700', btn.dataset.method !== method);
-                });
-                display.innerHTML = `
-                    <h5 class="text-xl font-bold text-sky-700 mb-2">${methodData.method} <span class="text-base font-medium text-slate-500 ml-2">(${methodData.crud} Operation)</span></h5>
-                    <p class="text-slate-600 mb-4">${methodData.description}</p>
-                    <div class="text-sm">
-                        <span class="font-semibold text-slate-500">Example URI:</span>
-                        <code class="ml-2 bg-slate-200 text-slate-800 px-2 py-1 rounded">${methodData.example}</code>
-                    </div>
-                `;
-            };
-
-            controls.addEventListener('click', e => {
-                const btn = e.target.closest('button');
-                if (btn && btn.dataset.method) {
-                    updateDisplay(btn.dataset.method);
-                }
-            });
-
-            updateDisplay('GET');
-        };
-
-        const renderPillars = () => {
-            const tabsContainer = document.getElementById('pillars-tabs');
-            const contentContainer = document.getElementById('pillars-content');
-
-            tabsContainer.innerHTML = data.pillars.map(p => `
-                <button data-tab="${p.id}" class="pillar-tab flex items-center whitespace-nowrap py-4 px-1 sm:px-2 border-b-2 font-medium text-sm transition-all">
-                    <span class="mr-2 text-lg">${p.icon}</span> ${p.title}
-                </button>
-            `).join('');
-
-            const showTab = (tabId) => {
-                tabsContainer.querySelectorAll('.pillar-tab').forEach(tab => {
-                    const isActive = tab.dataset.tab === tabId;
-                    tab.classList.toggle('tab-active', isActive);
-                    tab.classList.toggle('tab-inactive', !isActive);
-                });
-
-                contentContainer.innerHTML = getPillarContent(tabId);
-                
-                if (tabId === 'rate-limiting') renderRateLimitingChart();
-                if (tabId === 'logging-monitoring') renderLoggingChart();
-                if (tabId === 'error-handling') initStatusCodeFilter();
-                if (tabId === 'validation') initValidatorSandbox();
-            };
-            
-            tabsContainer.addEventListener('click', e => {
-                const tab = e.target.closest('button');
-                if(tab && tab.dataset.tab) {
-                    showTab(tab.dataset.tab);
-                }
-            });
-
-            showTab('validation');
-        };
-
-        const getPillarContent = (tabId) => {
-            switch(tabId) {
-                case 'validation': return `
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-                        <div>
-                            <h4 class="text-xl font-semibold mb-2">Pydantic Validator Sandbox</h4>
-                            <p class="text-slate-600 mb-4">FastAPI uses Pydantic for robust data validation. This ensures incoming data matches your defined schema. Try submitting the form with valid and invalid data to see how it works.</p>
-                            <form id="validator-form" class="space-y-4">
-                                <div>
-                                    <label for="item-name" class="block text-sm font-medium text-slate-700">Item Name (min 3 chars)</label>
-                                    <input type="text" id="item-name" value="Quantum Widget" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500">
-                                </div>
-                                <div>
-                                    <label for="item-price" class="block text-sm font-medium text-slate-700">Price (must be a number)</label>
-                                    <input type="text" id="item-price" value="99.99" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500">
-                                </div>
-                                <button type="submit" class="w-full bg-sky-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-sky-700 transition-colors">Validate & Create Item</button>
-                            </form>
-                        </div>
-                        <div class="bg-slate-900 rounded-lg p-4 font-mono text-sm text-white min-h-[300px]">
-                            <p class="text-slate-400 mb-4">// Server Response</p>
-                            <pre id="validator-output"><code>Click "Validate" to see the API response.</code></pre>
-                        </div>
-                    </div>`;
-                case 'rate-limiting': return `
-                    <div>
-                        <h4 class="text-xl font-semibold text-center mb-2">Comparing Rate Limiting Algorithms</h4>
-                        <p class="text-slate-600 text-center mb-8 max-w-2xl mx-auto">Different algorithms offer trade-offs between simplicity, accuracy, and performance. This chart compares them on key characteristics.</p>
-                        <div class="chart-container">
-                            <canvas id="rate-limiting-chart"></canvas>
-                        </div>
-                    </div>`;
-                case 'error-handling': return `
-                    <div>
-                        <h4 class="text-xl font-semibold text-center mb-2">HTTP Status Code Reference</h4>
-                        <p class="text-slate-600 text-center mb-8 max-w-2xl mx-auto">Correctly using HTTP status codes is vital for a clear API contract. Search for a code or name to quickly find its meaning.</p>
-                        <input type="text" id="status-code-search" placeholder="Search by code or name (e.g., 404, Not Found)" class="w-full max-w-lg mx-auto block mb-8 px-4 py-2 border border-slate-300 rounded-md">
-                        <div id="status-code-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            ${data.statusCodes.map(sc => statusCodeCard(sc)).join('')}
-                        </div>
-                    </div>`;
-                case 'logging-monitoring': return `
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                         <div>
-                            <h4 class="text-xl font-semibold text-center mb-2">Comparing Log Levels</h4>
-                            <p class="text-slate-600 text-center mb-8 max-w-2xl mx-auto">Choosing the right log level is key to effective debugging without flooding your logs. `DEBUG` is for development, while `INFO` or higher is for production.</p>
-                            <div class="chart-container">
-                                <canvas id="logging-chart"></canvas>
-                            </div>
-                        </div>
-                        <div>
-                             <h4 class="text-xl font-semibold text-center mb-2">The Observability Stack</h4>
-                             <p class="text-slate-600 text-center mb-8 max-w-2xl mx-auto">A modern stack combines tools for metrics, tracing, and visualization. Click a component to learn its role.</p>
-                             <div id="monitoring-stack-diagram" class="space-y-4">
-                                <div data-component="fastapi" class="monitoring-component bg-white p-4 rounded-lg text-center ring-1 ring-slate-200 cursor-pointer hover:ring-sky-500">
-                                    <h5 class="font-semibold">Your FastAPI App</h5>
-                                    <p class="text-sm text-slate-500 hidden mt-2">Instrumented with libraries like `prometheus_fastapi_instrumentator` and `sentry-sdk` to expose metrics and traces.</p>
-                                </div>
-                                <div class="text-center text-2xl text-slate-400">⬇️</div>
-                                <div class="grid grid-cols-2 gap-4">
-                                     <div data-component="prometheus" class="monitoring-component bg-white p-4 rounded-lg text-center ring-1 ring-slate-200 cursor-pointer hover:ring-sky-500">
-                                        <h5 class="font-semibold">Prometheus & Sentry</h5>
-                                        <p class="text-sm text-slate-500 hidden mt-2">Prometheus scrapes metrics (counters, gauges). Sentry captures errors and performance traces.</p>
-                                     </div>
-                                      <div class="text-center text-2xl text-slate-400 self-center">➡️</div>
-                                </div>
-                                 <div class="text-center text-2xl text-slate-400">⬇️</div>
-                                 <div data-component="grafana" class="monitoring-component bg-white p-4 rounded-lg text-center ring-1 ring-slate-200 cursor-pointer hover:ring-sky-500">
-                                    <h5 class="font-semibold">Grafana / Sentry UI</h5>
-                                    <p class="text-sm text-slate-500 hidden mt-2">Visualizes data from Prometheus and Sentry in dashboards, allowing you to analyze trends, detect anomalies, and debug issues.</p>
-                                </div>
-                             </div>
-                        </div>
-                    </div>
-                `;
-                default: return `<p>Select a tab to see content.</p>`
-            }
-        };
-
-        const initValidatorSandbox = () => {
-            const form = document.getElementById('validator-form');
-            const output = document.getElementById('validator-output');
-            
-            form.addEventListener('submit', e => {
-                e.preventDefault();
-                const name = document.getElementById('item-name').value;
-                const price = document.getElementById('item-price').value;
-                let errors = [];
-
-                if (name.length < 3) {
-                    errors.push({ loc: ["body", "name"], msg: "ensure this value has at least 3 characters" });
-                }
-                if (isNaN(parseFloat(price)) || !isFinite(price)) {
-                    errors.push({ loc: ["body", "price"], msg: "value is not a valid float" });
-                }
-
-                if (errors.length > 0) {
-                    output.innerHTML = `<code class="text-red-400">HTTP/1.1 422 Unprocessable Entity</code>\n\n<code class="text-yellow-300">${JSON.stringify({ detail: errors }, null, 2)}</code>`;
-                } else {
-                     output.innerHTML = `<code class="text-green-400">HTTP/1.1 201 Created</code>\n\n<code class="text-yellow-300">${JSON.stringify({ item_name: name, item_price: parseFloat(price) }, null, 2)}</code>`;
-                }
-            });
-        };
-
-        const renderRateLimitingChart = () => {
-            const ctx = document.getElementById('rate-limiting-chart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Fixed Window', 'Sliding Window', 'Leaky Bucket'],
-                    datasets: [
-                        { label: 'Implementation Simplicity', data: [9, 5, 6], backgroundColor: 'rgba(56, 189, 248, 0.6)'},
-                        { label: 'Burst Prevention Accuracy', data: [3, 9, 8], backgroundColor: 'rgba(2, 132, 199, 0.6)' },
-                        { label: 'Low Latency', data: [8, 7, 4], backgroundColor: 'rgba(14, 116, 144, 0.6)' },
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true, max: 10, ticks: { color: '#64748b' } }, x: { ticks: { color: '#64748b' } } },
-                    plugins: { legend: { labels: { color: '#334155' } }, tooltip: { titleFont: { size: 14 }, bodyFont: { size: 12 } } }
-                }
-            });
-        };
-        
-        const renderLoggingChart = () => {
-            const ctx = document.getElementById('logging-chart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
-                    datasets: [
-                        {
-                            label: 'Verbosity Level',
-                            data: [10, 8, 6, 4, 2],
-                            backgroundColor: 'rgba(56, 189, 248, 0.6)',
-                            borderColor: 'rgba(56, 189, 248, 1)',
-                            borderWidth: 1
-                        }
-                    ]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { x: { beginAtZero: true, max: 10, ticks: { color: '#64748b' } }, y: { ticks: { color: '#64748b' } } },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) { label += ': '; }
-                                    if (context.parsed.x !== null) { label += context.parsed.x; }
-                                    const desc = {
-                                        'DEBUG': 'For development & deep diagnosis.',
-                                        'INFO': 'For production: routine operations.',
-                                        'WARNING': 'Unexpected, but handled issues.',
-                                        'ERROR': 'Operation failed.',
-                                        'CRITICAL': 'Application may crash.'
-                                    };
-                                    return [label, desc[context.label]];
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-             const diagram = document.getElementById('monitoring-stack-diagram');
-             diagram.addEventListener('click', e => {
-                 const component = e.target.closest('.monitoring-component');
-                 if (component) {
-                     const desc = component.querySelector('p');
-                     const wasHidden = desc.classList.contains('hidden');
-                     
-                     diagram.querySelectorAll('p').forEach(p => p.classList.add('hidden'));
-                     diagram.querySelectorAll('.monitoring-component').forEach(c => c.classList.remove('ring-sky-500', 'bg-sky-50'));
-                     
-                     if (wasHidden) {
-                         desc.classList.remove('hidden');
-                         component.classList.add('ring-sky-500', 'bg-sky-50');
-                     }
-                 }
-             });
-        };
-
-        const statusCodeCard = (sc) => {
-             let colorClass = 'bg-sky-100 text-sky-800';
-            if (sc.category === 'Client Error') colorClass = 'bg-amber-100 text-amber-800';
-            if (sc.category === 'Server Error') colorClass = 'bg-red-100 text-red-800';
-            
-            return `
-                <div class="status-code-card p-4 bg-white rounded-lg shadow-sm ring-1 ring-slate-100" data-name="${sc.name.toLowerCase()}" data-code="${sc.code}">
-                    <div class="flex justify-between items-start">
-                        <h5 class="font-bold text-slate-800 text-lg">${sc.code} ${sc.name}</h5>
-                        <span class="text-xs font-semibold px-2 py-1 rounded-full ${colorClass}">${sc.category}</span>
-                    </div>
-                    <p class="text-slate-600 mt-2 text-sm">${sc.desc}</p>
-                </div>
-            `;
-        }
-        
-        const initStatusCodeFilter = () => {
-            const searchInput = document.getElementById('status-code-search');
-            const grid = document.getElementById('status-code-grid');
-
-            const filterCodes = () => {
-                const query = searchInput.value.toLowerCase();
-                const cards = grid.querySelectorAll('.status-code-card');
-                let visibleCount = 0;
-                cards.forEach(card => {
-                    const name = card.dataset.name;
-                    const code = card.dataset.code;
-                    const isVisible = name.includes(query) || code.includes(query);
-                    card.style.display = isVisible ? 'block' : 'none';
-                    if (isVisible) visibleCount++;
-                });
-
-                if (visibleCount === 0 && !grid.querySelector('.no-results')) {
-                     grid.insertAdjacentHTML('beforeend', '<p class="no-results text-slate-500 col-span-full text-center">No matching status codes found.</p>');
-                } else if(visibleCount > 0) {
-                    const noResults = grid.querySelector('.no-results');
-                    if (noResults) noResults.remove();
-                }
-            };
-            
-            searchInput.addEventListener('input', filterCodes);
-        };
-
-        const renderRecommendations = () => {
-            const grid = document.getElementById('recommendations-grid');
-            grid.innerHTML = data.recommendations.map(r => `
-                <div class="bg-white p-6 rounded-xl shadow-md flex items-start space-x-4">
-                    <div class="text-3xl">${r.icon}</div>
-                    <div>
-                        <h5 class="font-semibold text-slate-900">${r.title}</h5>
-                        <p class="text-slate-600 text-sm mt-1">${r.description}</p>
-                    </div>
-                </div>
-            `).join('');
-        };
-        
-        renderRestConstraints();
-        renderHttpMethods();
-        renderPillars();
-        renderRecommendations();
-    });
-    </script>
 </body>
 </html>
